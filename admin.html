@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Panel - Garena FF</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: sans-serif; }
+    body { background-color: #121212; color: #fff; padding: 20px; }
+    .wrap { max-width: 550px; margin: 0 auto; }
+    
+    .panel-card { background-color: #1a1a1a; border-radius: 14px; padding: 20px; margin-bottom: 20px; border: 1px solid #333; }
+    .panel-card h1 { font-size: 20px; font-weight: bold; margin-bottom: 8px; color: #7ec8e3; }
+    .panel-card p { color: #aaa; font-size: 13px; line-height: 1.4; margin-bottom: 15px; }
+    
+    .panel-item-box { background: #111; border: 1px solid #444; border-radius: 10px; padding: 15px; margin-bottom: 15px; }
+    
+    .input-label { display: block; font-size: 11px; font-weight: bold; margin-bottom: 4px; color: #ffcc00; }
+    .input-field { width: 100%; background-color: #000; border: 1px solid #444; border-radius: 6px; padding: 10px; color: #fff; font-size: 13px; margin-bottom: 10px; outline: none; }
+    
+    .btn-add { background: #3498db; color: #fff; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; margin-bottom: 15px; }
+    .btn-add:hover { background: #2980b9; }
+
+    .btn-remove { background: #e74c3c; color: #fff; border: none; padding: 8px 12px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; }
+    .btn-remove:hover { background: #c0392b; }
+
+    .btn-save { width: 100%; background: #2ecc71; color: #000; border: none; padding: 14px; border-radius: 8px; font-size: 16px; font-weight: 900; cursor: pointer; text-transform: uppercase; }
+    .btn-save:hover { background: #27ae60; }
+    
+    .back-link { display: inline-block; margin-bottom: 15px; color: #7ec8e3; text-decoration: none; font-weight: bold; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <a href="index.html" class="back-link">← Back to User Website</a>
+    
+    <div class="panel-card">
+      <h1>Admin Control Panel</h1>
+      <p>Yahan se aap website ka header, single video URL, aur niche ke panel cards ko manage kar sakte hain.</p>
+      
+      <label class="input-label">🌐 Top Header Title</label>
+      <input type="text" class="input-field" id="headerInput" placeholder="Garena Free Fire Team">
+
+      <label class="input-label">🎥 Single Video Direct Link (.mp4 URL)</label>
+      <input type="text" class="input-field" id="videoInput" placeholder="https://...">
+
+      <hr style="border: 0; border-top: 1px solid #333; margin: 20px 0;">
+
+      <h3 style="font-size: 16px; margin-bottom: 15px; color: #7ec8e3;">Manage Panel Cards</h3>
+      <div id="panelsEditorList"></div>
+
+      <button class="btn-add" onclick="addNewPanel()">➕ Add New Panel Card</button>
+      <button class="btn-save" onclick="saveData()">Save All Changes</button>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "ff_single_video_db_v4";
+
+    const defaults = {
+      headerText: "Garena Free Fire Team",
+      videoUrl: "https://files.catbox.moe/k6gbte.mp4",
+      panels: [
+        {
+          title: "FREE DIAMONDS CLAIM",
+          desc: "FREE 10000 DIAMONDS CLAIM 💎🥳",
+          logo: "https://i.ibb.co/bjxQ86sB/IMG-20260817-213021.jpg",
+          link: "https://1024terabox.com/s/1KobbUsLAD-ZZkqW1Czdjqg"
+        }
+      ]
+    };
+
+    let data = JSON.parse(localStorage.getItem(STORAGE_KEY)) || JSON.parse(JSON.stringify(defaults));
+
+    function renderEditor() {
+      document.getElementById("headerInput").value = data.headerText;
+      document.getElementById("videoInput").value = data.videoUrl;
+
+      const list = document.getElementById("panelsEditorList");
+      list.innerHTML = "";
+
+      data.panels.forEach((panel, index) => {
+        list.innerHTML += `
+          <div class="panel-item-box">
+            <label class="input-label">🏷️ Panel Title Name</label>
+            <input type="text" class="input-field" id="p_title_${index}" value="${panel.title}">
+
+            <label class="input-label">📝 Description Text</label>
+            <input type="text" class="input-field" id="p_desc_${index}" value="${panel.desc}">
+
+            <label class="input-label">🖼️ Logo Image URL</label>
+            <input type="text" class="input-field" id="p_logo_${index}" value="${panel.logo}">
+
+            <label class="input-label">📥 Install Button Link (Terabox / APK)</label>
+            <input type="text" class="input-field" id="p_link_${index}" value="${panel.link}">
+
+            <button class="btn-remove" onclick="removePanel(${index})">🗑️ Remove This Panel</button>
+          </div>
+        `;
+      });
+    }
+
+    function addNewPanel() {
+      data.panels.push({
+        title: "FREE DIAMONDS CLAIM",
+        desc: "FREE 10000 DIAMONDS CLAIM 💎🥳",
+        logo: "https://i.ibb.co/bjxQ86sB/IMG-20260817-213021.jpg",
+        link: "https://1024terabox.com/s/1KobbUsLAD-ZZkqW1Czdjqg"
+      });
+      renderEditor();
+    }
+
+    function removePanel(index) {
+      data.panels.splice(index, 1);
+      renderEditor();
+    }
+
+    function saveData() {
+      data.headerText = document.getElementById("headerInput").value;
+      data.videoUrl = document.getElementById("videoInput").value;
+
+      data.panels.forEach((panel, index) => {
+        panel.title = document.getElementById(`p_title_${index}`).value;
+        panel.desc = document.getElementById(`p_desc_${index}`).value;
+        panel.logo = document.getElementById(`p_logo_${index}`).value;
+        panel.link = document.getElementById(`p_link_${index}`).value;
+      });
+
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      alert("Settings Saved Successfully! Website update ho gayi hai.");
+      renderEditor();
+    }
+
+    renderEditor();
+  </script>
+</body>
+</html>
